@@ -60,5 +60,18 @@
         (user-id 6)
         (practice-streak long)))
 
+
+(assert 
+   (availability
+      (user-id 7)
+      (practice-days-per-week low)
+      (average-session-duration low)
+      (days-until-interview limited)))
+
+(assert 
+   (user-background
+      (user-id 8)
+      (has-dsa-knowledge no)))
+
 (run)
 

@@ -1,3 +1,9 @@
+; -- User Background knowledge with DSA --
+(deftemplate user-background
+   (slot user-id)
+   (slot has-dsa-knowledge)  ; yes | no
+)
+
 ; --- User well-being and fatigue facts ---
 
 (deftemplate user-fatigue
@@ -8,6 +14,19 @@
 (deftemplate motivation
     (slot user-id)
     (slot motivation-level) ; low | moderate | high
+)
+
+; -- User employment facts --
+(deftemplate employment
+   (slot user-id)
+   (slot employment-status)  ; employed | unemployed | student
+   (slot weekly-working-hours)  ; low | moderate | high
+)
+
+; -- User career goals facts --
+(deftemplate career-goals
+   (slot user-id)
+   (slot career-goal)  ; internship | full-time | skill-development
 )
 
 ; -- LeetCode experience facts --
