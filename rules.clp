@@ -1,31 +1,35 @@
-; -- User Background knowledge with DSA rules --
-(defrule no-dsa-knowledge-advice
+; -- Rule 1: No DSA Knowledge --
+(defrule rule-1-no-dsa-knowledge
     (user-background
         (user-id ?id)
         (has-dsa-knowledge no))
 =>
     (printout t
         "User " ?id
-        ": It appears you lack foundational DSA knowledge. Consider starting with basic data structures and algorithms before tackling complex problems."
+        ": It appears you lack foundational DSA knowledge. Start with basic data structures and algorithms."
         crlf)
 )
 
-; --- User well-being and fatigue rules ---
-
-(defrule high-fatigue-advice
+; -- Rule 2: High Fatigue 
+(defrule rule-2-high-fatigue-general
    (user-fatigue
       (user-id ?id)
       (fatigue-level high))
-    (not
-      (consistency
-         (user-id ?id)
-         (practice-streak long)))
+   (not (consistency
+      (user-id ?id)
+      (practice-streak long)))
+   (not (motivation
+      (user-id ?id)
+      (motivation-level low)))
 =>
    (printout t
-      "User " ?id ": Light practice or rest is recommended." crlf)
+      "User " ?id
+      ": Light practice or rest is recommended."
+      crlf)
 )
 
-(defrule fatigue-and-low-motivation
+; -- Rule 3: High Fatigue + Low motivation --
+(defrule rule-3-fatigue-low-motivation
    (user-fatigue
       (user-id ?id)
       (fatigue-level high))
@@ -34,10 +38,11 @@
       (motivation-level low))
 =>
     (printout t
-         "User " ?id ": High fatigue and low motivation detected. Recovery is recommended before increasing workload." crlf)
+         "User " ?id ": High fatigue and low motivation detected. Recovery is recommended." crlf)
 )
 
-(defrule planned-recovery-break
+; -- Rule 4: High Fatigue + Long Streak --
+(defrule rule-4-planned-recovery
    (consistency
       (user-id ?id)
       (practice-streak long))
@@ -47,14 +52,12 @@
 =>
    (printout t
       "User " ?id
-      ": You have maintained a long practice streak but are showing high fatigue. A planned recovery break is recommended to prevent burnout."
+      ": Long practice streak with high fatigue detected. Take a planned recovery break."
       crlf)
 )
 
-
-; -- LeetCode experience-based advice rules --
-
-(defrule beginner-avoid-medium-hard
+; -- Rule 5: Beginner Avoid Medium or Hard --
+(defrule rule-5-beginner-avoid-medium-hard
    (leetcode-experience
       (user-id ?id)
       (leetcode-experience-level beginner)
@@ -64,11 +67,12 @@
 =>
    (printout t
       "User " ?id
-      ": As a beginner with low experience, focus on easy problems to build confidence."
+      ": Focus on easy problems to build confidence."
       crlf)
 )
 
-(defrule reduce-difficulty-after-failure
+; -- Rule 6: Reduce Difficulty After Failures --
+(defrule rule-6-reduce-difficulty-after-failure
    (performance
       (user-id ?id)
       (recent-failure-rate high))
@@ -78,11 +82,12 @@
 =>
    (printout t
       "User " ?id
-      ": High failure rate on medium problems. Reduce difficulty to easy to rebuild understanding."
+      ": High failure rate detected. Reduce difficulty to easy."
       crlf)
 )
 
-(defrule increase-difficulty-after-success
+; -- Rule 7: Increase Difficulty After Success --
+(defrule rule-7-increase-difficulty-after-success
    (performance
       (user-id ?id)
       (recent-success-rate high))
@@ -92,11 +97,12 @@
 =>
    (printout t
       "User " ?id
-      ": Strong performance on easy problems. Consider moving up to medium difficulty."
+      ": Strong performance. Try medium difficulty problems."
       crlf)
 )
 
-(defrule switch-from-hard-after-low-success
+; -- Rule 8: Switch from Hard After Low Success --
+(defrule rule-8-switch-from-hard
    (performance
       (user-id ?id)
       (recent-success-rate low))
@@ -106,13 +112,12 @@
 =>
    (printout t
       "User " ?id
-      ": Low success rate on hard problems. Switch to easier problems and review fundamentals."
+      ": Low success on hard problems. Switch to easier ones."
       crlf)
 )
 
-; -- Experience Progression Rules --
-
-(defrule maintain-difficulty-for-stable-beginner
+; -- Rule 9: Maintain Difficulty for Stable Beginner --
+(defrule rule-9-stable-beginner
     (leetcode-experience
         (user-id ?id)
         (leetcode-experience-level beginner))
@@ -125,11 +130,12 @@
 =>
     (printout t
         "User " ?id
-        ": You are making steady progress as a beginner. Maintain your current difficulty."
+        ": Steady progress detected. Maintain current difficulty."
         crlf)
 )
 
-(defrule allow-harder-problems-for-intermediate
+; -- Rule 10: Allow Harder Problems for Intermediate --
+(defrule rule-10-intermediate-advance
     (leetcode-experience
         (user-id ?id)
         (leetcode-experience-level intermediate)
@@ -144,24 +150,24 @@
 =>
     (printout t
         "User " ?id
-        ":Strong performance detected. As an intermediate learner, you may try occasional harder problems beyond your current difficulty level."crlf)
+        ":Strong performance detected. You may attempt occasional harder problems."crlf)
 
 )
 
-; -- Practice Frequency Rules --
-
-(defrule low-practie-days-per-week
+; -- Rule 11: Low Practice Frequency --
+(defrule rule-11-low-practice-frequency
       (availability
          (user-id ?id)
          (practice-days-per-week low)) 
 =>
       (printout t
          "User " ?id
-         ": Increasing practice days per week can enhance learning consistency." crlf)
+         ": Increase weekly practice frequency for better consistency." crlf)
 
 )
 
-(defrule increase-practice-schedule
+; -- Rule 12: Increase Practicfe for Unemployed Users--
+(defrule rule-12-unemployed-increase-practice
       (employment
          (user-id ?id)
          (employment-status unemployed)
@@ -169,10 +175,11 @@
 =>
       (printout t
          "User " ?id
-         ": With more available time, consider increasing your practice schedule for better results." crlf)
+         ": Consider increasing practice time." crlf)
 )
 
-(defrule flexible-schedule-for-employed
+; -- Rule 13: Flexible Schedule for Employed Users --
+(defrule rule-13-flexible-schedule
       (employment
          (user-id ?id)
          (employment-status employed)
@@ -180,11 +187,11 @@
 =>
       (printout t
          "User " ?id
-         ": Balancing work and practice is key. Consider shorter, focused sessions to fit your busy schedule." crlf)
+         ": Use short, focused practice sessions." crlf)
 )
 
-; -- Time constraint rules --
-(defrule prioritize-interview-style-problem
+; -- Rule 14: Prioritize Interview Problems --
+(defrule rule-14-prioritize-interview
       (availability
          (user-id ?id)
          (days-until-interview limited))
@@ -194,32 +201,22 @@
 =>
       (printout t
          "User " ?id
-         ": With limited time until your internship interview, prioritize practicing interview-style problems." crlf)
+         ": Prioritize practicing interview-style problems." crlf)
 )
 
-(defrule balanced-practice-for-far-interview
-      (availability
-         (user-id ?id)
-         (days-until-interview low)
-         (practice-days-per-week low))
-=>    
-      (printout t
-         "User " ?id
-         ": With ample time before your interview, focus on balanced practice to build overall skills." crlf)
-)
-
-(defrule slow-skill-Progression
+; -- Rule 15: Gradual Progress with Plenty of Time
+(defrule rule-15-slow-skill-progression
       (availability
          (user-id ?id)
          (days-until-interview far))
 =>  
       (printout t
          "User " ?id
-         ": With plenty of time before your interview, adopt a gradual skill progression strategy for deep learning." crlf)
+         ": Adopt a gradual skill progression." crlf)
 )
 
-; -- Consistency and Habit rules --
-(defrule achieve-small-goals
+; -- Rule 16: Small Goals for Low Motivation --
+(defrule rule-16-achieve-small-goals
       (consistency
          (user-id ?id)
          (practice-streak short))
@@ -229,21 +226,25 @@
 =>
       (printout t
          "User " ?id
-         ": To boost motivation, set small, achievable practice goals to build consistency." crlf)
+         ": Set small achievable goals to build motivation and consistency." crlf)
 )  
 
-(defrule reinforce-consistent-practice
+; -- Rule 17: Reinforce Long Consistency --
+(defrule rule-17-reinforce-consistency
       (consistency
          (user-id ?id)
          (practice-streak long))
+      (not (user-fatigue
+         (user-id ?id)
+         (fatigue-level high)))
 =>
       (printout t
          "User " ?id
-         ": You are maintaining a consistent practice schedule. Keep it up!" crlf)
+         ": Great job maintaining consistent practice." crlf)
 )  
 
-; -- Session Duration Rules --
-(defrule short-session-for-high-fatigue
+; -- Rule 18: Shorter Sessions for High Fatigue --
+(defrule rule-18-shorten-sessions
       (user-fatigue
          (user-id ?id)
          (fatigue-level high))
@@ -253,10 +254,11 @@
 =>
       (printout t
          "User " ?id 
-         ": Consider shortening your practice sessions to manage high fatigue levels." crlf)
+         ": Shorten sessions to manage fatigue." crlf)
 )  
 
-(defrule longer-sessions-for-low-fatigue
+; -- Rule 19: Longer Sessions for Low Fatigue --
+(defrule rule-19-extend-sessions
       (user-fatigue
          (user-id ?id)
          (fatigue-level low))
@@ -266,7 +268,22 @@
 =>
       (printout t 
          "User " ?id 
-         ": With low fatigue levels, you can consider extending your practice session durations for deeper focus." crlf)
+         ": Extend sessions to take advantage of low fatigue levels." crlf)
 )
+
+; -- Rule 20: Burnout Prevention for overworked but consistent users --
+(defrule rule-20-burnout-prevention
+      (employment
+         (user-id ?id)
+         (weekly-working-hours high))
+      (consistency
+         (user-id ?id)
+         (practice-streak long))
+=>
+      (printout t
+         "User " ?id
+         ": Consider taking a break to prevent burnout." crlf)
+)  
+
 
 
