@@ -95,4 +95,76 @@
       (practice-streak long))
 )
 
+; -- Test case 5: rule 5 --
+(deffacts test-rule-5
+   (leetcode-experience
+      (user-id 5)
+      (leetcode-experience-level beginner)
+      (current-problem-difficulty medium)
+      (problems-solved-count low))
+)
+
+; -- Test case 6: rule 6 --
+(deffacts test-rule-6
+   (performance
+      (user-id 6)
+      (recent-success-rate low)
+      (recent-failure-rate high))
+   (leetcode-experience
+      (user-id 6)
+      (current-problem-difficulty medium))
+)
+
+; -- Test case 7: rule 7 --
+(deffacts test-rule-7
+   (performance
+      (user-id 7)
+      (recent-success-rate high)
+      (recent-failure-rate low))
+   (leetcode-experience
+      (user-id 7)
+      (current-problem-difficulty easy))
+) 
+
+; -- Test case 8: rule 8 --
+(deffacts test-rule-8
+   (performance
+      (user-id 8)
+      (recent-success-rate low)
+      (recent-failure-rate high))
+   (leetcode-experience
+      (user-id 8)
+      (current-problem-difficulty hard))
+)
+
+; -- Test case 9: rule 9 --
+(deffacts test-rule-9
+   (leetcode-experience
+      (user-id 9)
+      (leetcode-experience-level beginner))
+   (performance
+      (user-id 9)
+      (recent-success-rate moderate))
+   (consistency
+      (user-id 9)
+      (practice-streak moderate))    
+)
+
+; -- Test case 10: rule 10 --
+(deffacts test-rule-10
+   (leetcode-experience
+      (user-id 10)
+      (leetcode-experience-level intermediate)
+      (current-problem-difficulty medium))
+   (performance      
+      (user-id 10)
+      (recent-success-rate high))
+   (consistency
+      (user-id 10)      
+      (practice-regularity consistent))
+)
+
+
+     
+
 
