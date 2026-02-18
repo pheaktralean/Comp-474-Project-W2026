@@ -18,7 +18,9 @@
       "--------------------------------------------------" crlf)
 )
 
-; -- Category 1: Fundamental Knowledge --
+;------------------------------------------------------------
+; ------------ Category 1: Fundamental Knowledge ------------
+;------------------------------------------------------------
 
 ; -- Rule 1: No DSA Knowledge --
 (defrule rule-1-no-dsa-knowledge
@@ -34,148 +36,99 @@
       (reason "no-dsa-knowledge")))
 )
 
-; -- Category 2: Well-being Management --
+;------------------------------------------------------------
+; --------------- Category 2: Well-being Management ---------
+;------------------------------------------------------------
 
-; -- Rule 2: High Fatigue 
-(defrule rule-2-high-fatigue-general
+; -- Rule 2: Fatigue-Based Practice Adjustment --
+(defrule rule-2-fatigue-adjustment
    (well-being
       (user-id ?id)
       (fatigue-level high))
    (practice-habits
       (user-id ?id)
-      (practice-streak ?streak))
-   (not (practice-habits
-        (user-id ?id)
-        (average-session-duration ?d&:(> ?d 90))))
-
+      (practice-streak ?streak)
+      (average-session-duration ?duration))
 =>
-   (if (> ?streak 7)
-   then 
-      (assert (recommendation
-         (user-id ?id)
-         (rule-id "2")
-         (category "well-being-management")
-         (advice "Consider taking a break to prevent burnout.")
-         (reason "high-fatigue-long-streak")))
+   (if (> ?duration 90)
+      then
+         (assert (recommendation
+            (user-id ?id)
+            (rule-id "2")
+            (category "well-being-management")
+            (advice "Shorten practice sessions to manage fatigue.")
+            (reason "high-fatigue-long-sessions")))
    else
-      (assert (recommendation
-         (user-id ?id)
-         (rule-id "2")
-         (category "well-being-management")
-         (advice "Take a break or reduce practice intensity.")
-         (reason "high-fatigue-short-streak")))
-   )
+      (if (> ?streak 7)
+         then
+            (assert (recommendation
+               (user-id ?id)
+               (rule-id "2")
+               (category "well-being-management")
+               (advice "Consider taking a break to prevent burnout.")
+               (reason "high-fatigue-long-streak")))
+         else
+            (assert (recommendation
+               (user-id ?id)
+               (rule-id "2")
+               (category "well-being-management")
+               (advice "Reduce practice intensity and focus on lighter problems.")
+               (reason "general-high-fatigue")))))
 )
 
-; -- Rule 3: High Fatigue + Low motivation --
-(defrule rule-3-fatigue-low-motivation
+; -- Rule 3: Motivation Recovery Rule --
+(defrule rule-3-motivation-recovery
    (well-being
       (user-id ?id)
-      (fatigue-level high)
-      (motivation-level low))
+      (motivation-level low)
+      (fatigue-level ?fatigue))
+   (practice-habits
+      (user-id ?id)
+      (practice-streak ?streak))
+   (or
+      (test (eq ?fatigue high))
+      (test (< ?streak 3)))
 =>
    (assert (recommendation
       (user-id ?id)
       (rule-id "3")
       (category "well-being-management")
-      (advice "Take a break or reduce practice intensity.")
-      (reason "high-fatigue-low-motivation")))
+      (advice "Set small, achievable goals to rebuild momentum.")
+      (reason "low-motivation-fatigue-or-short-streak")))
 )
 
-; -- Rule 4: Small Goals for Low Motivation --
-(defrule rule-4-achieve-small-goals
+; -- Rule 4: Consistency and Burnout Balance --
+(defrule rule-4-consistency-balance
    (practice-habits
       (user-id ?id)
-      (practice-streak ?days&:(< ?days 3)))
-   (well-being
+      (practice-streak ?streak&:(> ?streak 7)))
+   (user-profile
       (user-id ?id)
-      (motivation-level low))
+      (weekly-working-hours ?hours))
 =>
-   (assert (recommendation
-      (user-id ?id)
-      (rule-id "4")
-      (category "motivation-boost")
-      (advice "Set small, achievable goals to build momentum.")
-      (reason "low-motivation-short-streak")))
-)  
-
-; -- Rule 5: Reinforce Long Consistency --
-(defrule rule-5-reinforce-consistency
-   (practice-habits
-      (user-id ?id)
-      (practice-streak ?days&:(> ?days 7)))
-   (not (well-being
-      (user-id ?id)
-      (fatigue-level high)))
-   (not (user-profile
-      (user-id ?id)
-      (weekly-working-hours ?hours&:(and (>= ?hours 40) (< ?hours 60)))))
-
-=>
-   (assert (recommendation
-      (user-id ?id)
-      (rule-id "5")
-      (category "consistency-reinforcement")
-      (advice "Keep up the great consistency!")
-      (reason "long-practice-streak")))
+   (if (>= ?hours 40)
+      then
+         (assert (recommendation
+            (user-id ?id)
+            (rule-id "4")
+            (category "well-being-management")
+            (advice "Maintain consistency but incorporate rest days to prevent burnout.")
+            (reason "long-streak-overworked")))
+      else
+         (assert (recommendation
+            (user-id ?id)
+            (rule-id "4")
+            (category "consistency-reinforcement")
+            (advice "Keep up the great consistency!")
+            (reason "long-practice-streak"))))
 )
 
-; -- Rule 6: Shorter Sessions for High Fatigue --
-(defrule rule-6-shorten-sessions
-      (well-being
-         (user-id ?id)
-         (fatigue-level high))
-      (practice-habits
-         (user-id ?id)
-         (average-session-duration ?duration&:(> ?duration 90)))
-=>
-   (assert (recommendation
-      (user-id ?id)
-      (rule-id "6")
-      (category "well-being-management")
-      (advice "Shorten practice sessions to manage fatigue.")
-      (reason "high-fatigue-long-sessions")))
-)  
+;------------------------------------------------------
+; -------- Category 3: Difficulty Selection -----------
+;------------------------------------------------------
 
-; -- Rule 7: Longer Sessions for Low Fatigue --
-(defrule rule-7-extend-sessions
-      (well-being
-         (user-id ?id)
-         (fatigue-level low))
-      (practice-habits
-         (user-id ?id)
-          (average-session-duration ?duration&:(< ?duration 30)))
-=>
-   (assert (recommendation
-      (user-id ?id)
-      (rule-id "7")
-      (category "well-being-management")
-      (advice "Extend practice sessions to take advantage of low fatigue levels.")
-      (reason "low-fatigue-short-sessions")))
-)
-
-; -- Rule 8: Burnout Prevention for overworked but consistent users --
-(defrule rule-8-burnout-prevention
-      (user-profile
-         (user-id ?id)
-          (weekly-working-hours ?hours&:(and (>= ?hours 40) (< ?hours 60))))
-      (practice-habits
-         (user-id ?id)
-         (practice-streak ?streak&:(> ?streak 7)))
-=>
-   (assert (recommendation
-      (user-id ?id)
-      (rule-id "8")
-      (category "well-being-management")
-      (advice "Be mindful of burnout and consider incorporating rest days.")
-      (reason "overworked-consistent-user")))
-)     
-
-
-; -- Category 3: Difficulty Selection --
-
-; -- Rule 9: Beginner Avoid Medium or Hard --
-(defrule rule-9-beginner-avoid-medium-hard
+; -- Rule 5: Beginner Avoid Medium or Hard --
+(defrule rule-5-beginner-avoid-medium-hard
    (leetcode-skill
       (user-id ?id)
       (leetcode-experience-level beginner)
@@ -185,14 +138,14 @@
 =>
    (assert (recommendation
       (user-id ?id)
-      (rule-id "9")
+      (rule-id "5")
       (category "difficulty-selection")
       (advice "Focus on easy problems to build confidence and skills.")
       (reason "beginner-with-low-problem-exposure")))
 )
 
-; -- Rule 10: Reduce Difficulty After Failures --
-(defrule rule-10-reduce-difficulty-after-failure
+; -- Rule 6: Reduce Difficulty After Failures --
+(defrule rule-6-reduce-difficulty-after-failure
    (leetcode-performance
       (user-id ?id)
       (recent-failure-rate high))
@@ -202,14 +155,14 @@
 =>
    (assert (recommendation
       (user-id ?id)
-      (rule-id "10")
+      (rule-id "6")
       (category "difficulty-selection")
       (advice "Reduce difficulty to easy.")
       (reason "high-failure-rate-medium-difficulty")))
 )
 
-; -- Rule 11: Increase Difficulty After Success --
-(defrule rule-11-increase-difficulty-after-success
+; -- Rule 7: Increase Difficulty After Success --
+(defrule rule-7-increase-difficulty-after-success
    (leetcode-performance
       (user-id ?id)
       (recent-success-rate high))
@@ -219,14 +172,14 @@
 =>
    (assert (recommendation
       (user-id ?id)
-      (rule-id "11")
+      (rule-id "7")
       (category "difficulty-selection")
       (advice "Consider trying medium difficulty problems.")
       (reason "high-success-rate-easy-difficulty")))
 )
 
-; -- Rule 12: Switch from Hard After Low Success --
-(defrule rule-12-switch-from-hard
+; -- Rule 8: Switch from Hard After Low Success --
+(defrule rule-8-switch-from-hard
    (leetcode-performance
       (user-id ?id)
       (recent-success-rate low))
@@ -236,14 +189,14 @@
 =>
    (assert (recommendation
       (user-id ?id)
-      (rule-id "12")
+      (rule-id "8")
       (category "difficulty-selection")
       (advice "Consider switching to medium difficulty problems.")
       (reason "low-success-rate-hard-difficulty")))
 )
 
-; -- Rule 13: Maintain Difficulty for Stable Beginner --
-(defrule rule-13-stable-beginner
+; -- Rule 9: Maintain Difficulty for Stable Beginner --
+(defrule rule-9-stable-beginner
     (leetcode-skill
         (user-id ?id)
         (leetcode-experience-level beginner))
@@ -260,15 +213,15 @@
    (assert
       (recommendation
          (user-id ?id)
-         (rule-id "13")
+         (rule-id "9")
          (category "difficulty-selection")
          (advice "Maintain your current difficulty level.")
          (reason "steady-progress-stable-beginner")))
 )
 
 
-; -- Rule 14: Allow Harder Problems for Intermediate --
-(defrule rule-14-intermediate-advance
+; -- Rule 10: Allow Harder Problems for Intermediate --
+(defrule rule-10-intermediate-advance
     (leetcode-skill
         (user-id ?id)
         (leetcode-experience-level intermediate)
@@ -284,80 +237,35 @@
    (assert
       (recommendation
          (user-id ?id)
-         (rule-id "14")
+         (rule-id "10")
          (category "difficulty-selection")
          (advice "You may attempt harder problems to further enhance your skills.")
          (reason "consistent-high-performance")))
 )
 
-; -- Rule 15: Gradual Progress with Plenty of Time
-(defrule rule-15-slow-skill-progression
+;------------------------------------------------------
+;--------- Category 4: Interview Strategy -------------
+;------------------------------------------------------
+
+; -- Rule 11: Gradual Progress with Plenty of Time
+(defrule rule-11-slow-skill-progression
    (practice-habits
       (user-id ?id)
-      (days-until-interview ?days&:(> ?days 31)))
+      (days-until-interview ?days&:(> ?days 31))
+   (leetcode-performance
+      (user-id ?id)
+      (recent-success-rate low)))
 =>  
    (assert (recommendation
       (user-id ?id)
-      (rule-id "15")
+      (rule-id "11")
       (category "skill-progression")
       (advice "Adopt a gradual skill progression.")
       (reason "plenty-of-time-before-interview")))
 )
 
-; -- Category 4: Practice Frequency --
-
-; -- Rule 16: Low Practice Frequency --
-(defrule rule-16-inconsistent-practice
-   (practice-habits
-      (user-id ?id)
-      (practice-days-per-week ?days&:(and (> ?days 0) (< ?days 4)))
-      (practice-regularity inconsistent))
-   (not (well-being
-      (user-id ?id)
-      (fatigue-level high)))
-=>
-   (assert
-      (recommendation
-         (user-id ?id)
-         (rule-id "16")
-         (category "practice-frequency")
-         (advice "Aim for a more consistent weekly schedule instead of sporadic sessions.")
-         (reason "inconsistent-practice-pattern")))
-)
-
-
-; -- Rule 17: Increase Practicfe for Unemployed Users--
-(defrule rule-17-unemployed-increase-practice
-      (user-profile
-         (user-id ?id)
-         (employment-status unemployed)
-         (weekly-working-hours ?hours&:(and (>= ?hours 0) (<= ?hours 19))))
-=>
-   (assert (recommendation
-      (user-id ?id)
-      (rule-id "17")
-      (category "practice-frequency")
-      (advice "Consider increasing practice time.")
-      (reason "unemployed-low-working-hours")))
-)
-
-; -- Rule 18: Flexible Schedule for Employed Users --
-(defrule rule-18-flexible-schedule
-      (user-profile
-         (user-id ?id)
-         (employment-status employed)
-         (weekly-working-hours ?hours&:(>= ?hours 40)))
-=>
-   (assert (recommendation
-      (user-id ?id)
-      (rule-id "18")
-      (category "practice-frequency")
-      (advice "Focus on quality practice sessions and consider a flexible schedule.")
-      (reason "employed-high-working-hours")))
-)
-
-; -- Rule 19: Prioritize Interview Problems --
-(defrule rule-19-interview-strategy
+; -- Rule 12: Prioritize Interview Problems --
+(defrule rule-12-interview-strategy
    (practice-habits
       (user-id ?id)
       (days-until-interview ?days&:(<= ?days 14)))
@@ -381,7 +289,7 @@
          (assert
             (recommendation
                (user-id ?id)
-               (rule-id "19")
+               (rule-id "12")
                (category "interview-preparation")
                (advice "Prioritize mock interviews immediately.")
                (reason "interview-soon-low-mock-exposure"))))
@@ -393,7 +301,7 @@
          (assert
             (recommendation
                (user-id ?id)
-               (rule-id "19")
+               (rule-id "12")
                (category "interview-preparation")
                (advice "Focus on medium-level interview problems.")
                (reason "interview-soon-ready-for-advancement"))))
@@ -403,16 +311,90 @@
          (assert
             (recommendation
                (user-id ?id)
-               (rule-id "19")
+               (rule-id "12")
                (category "interview-preparation")
                (advice "Strengthen fundamentals before advancing.")
                (reason "interview-soon-low-exposure"))))
 )
 
-; -- Category 5: Practice Efficiency --
+;------------------------------------------------------------
+; ----- Category 5: Practice Structure and Time Allocation --
+;------------------------------------------------------------
 
-; -- Rule 20: Inefficient Practice --
-(defrule rule-20-inefficient-practice
+; -- Rule 13: Energy Optimization --
+(defrule rule-13-energy-optimization
+   (well-being
+      (user-id ?id)
+      (fatigue-level low))
+   (practice-habits
+      (user-id ?id)
+      (average-session-duration ?duration&:(< ?duration 30)))
+=>
+   (assert (recommendation
+      (user-id ?id)
+      (rule-id "13")
+      (category "practice-optimization")
+      (advice "Consider slightly extending practice sessions to take advantage of your low fatigue levels.")
+      (reason "low-fatigue-short-sessions")))
+)
+ 
+
+; -- Rule 14: Low Practice Frequency --
+(defrule rule-14-inconsistent-practice
+   (practice-habits
+      (user-id ?id)
+      (practice-days-per-week ?days&:(and (> ?days 0) (< ?days 4)))
+      (practice-regularity inconsistent))
+   (not (well-being
+      (user-id ?id)
+      (fatigue-level high)))
+=>
+   (assert
+      (recommendation
+         (user-id ?id)
+         (rule-id "14")
+         (category "practice-frequency")
+         (advice "Aim for a more consistent weekly schedule instead of sporadic sessions.")
+         (reason "inconsistent-practice-pattern")))
+)
+
+
+; -- Rule 15: Increase Practicfe for Unemployed Users--
+(defrule rule-15-unemployed-increase-practice
+      (user-profile
+         (user-id ?id)
+         (employment-status unemployed)
+         (weekly-working-hours ?hours&:(and (>= ?hours 0) (<= ?hours 19))))
+=>
+   (assert (recommendation
+      (user-id ?id)
+      (rule-id "15")
+      (category "practice-frequency")
+      (advice "Consider increasing practice time.")
+      (reason "unemployed-low-working-hours")))
+)
+
+; -- Rule 16: Flexible Schedule for Employed Users --
+(defrule rule-16-flexible-schedule
+      (user-profile
+         (user-id ?id)
+         (employment-status employed)
+         (weekly-working-hours ?hours&:(>= ?hours 40)))
+=>
+   (assert (recommendation
+      (user-id ?id)
+      (rule-id "16")
+      (category "practice-frequency")
+      (advice "Focus on quality practice sessions and consider a flexible schedule.")
+      (reason "employed-high-working-hours")))
+)
+
+;------------------------------------------------------------
+;-------------- Category 6: Practice Efficiency -------------
+;------------------------------------------------------------
+
+; -- Rule 17: Inefficient Practice --
+(defrule rule-17-inefficient-practice
    (practice-habits
       (user-id ?id)
       (weekly-practice-minutes ?minutes&:(>= ?minutes 300)))  ; 5+ hours/week
@@ -426,14 +408,14 @@
    (assert
       (recommendation
          (user-id ?id)
-         (rule-id "20")
+         (rule-id "17")
          (category "practice-efficiency")
          (advice "Review patterns and fundamentals to improve efficiency.")
          (reason "high-effort-low-success-indicates-inefficiency")))
 )
 
-; -- Rule 21: No Review Habit --
-(defrule rule-21-no-review-habit
+; -- Rule 18: No Review Habit --
+(defrule rule-18-no-review-habit
    (leetcode-performance
       (user-id ?id)
       (post-problem-review no)
@@ -442,8 +424,46 @@
    (assert
       (recommendation
          (user-id ?id)
-         (rule-id "21")
+         (rule-id "18")
          (category "practice-efficiency")
          (advice "Develop a habit of reviewing problems after solving them.")
          (reason "no-post-problem-review-habit")))
+)
+
+; -- Rule 19: Performance Plateau Detection --
+(defrule rule-19-performance-plateau
+   (practice-habits
+      (user-id ?id)
+      (practice-streak ?streak&:(>= ?streak 10))
+      (weekly-practice-minutes ?minutes&:(>= ?minutes 240)))
+   (leetcode-performance
+      (user-id ?id)
+      (recent-success-rate moderate))
+=>
+   (assert
+      (recommendation
+         (user-id ?id)
+         (rule-id "19")
+         (category "practice-efficiency")
+         (advice "Introduce new problem patterns or time-based challenges to overcome performance plateau.")
+         (reason "sustained-effort-moderate-performance-plateau")))
+)
+
+; -- Rule 20: Avoid Overtraining --
+(defrule rule-20-avoid-overtraining
+   (practice-habits
+      (user-id ?id)
+      (weekly-practice-minutes ?minutes&:(>= ?minutes 300))
+      (days-until-interview ?days&:(> ?days 30)))
+   (leetcode-performance
+      (user-id ?id)
+      (recent-success-rate high))
+=>
+   (assert
+      (recommendation
+         (user-id ?id)
+         (rule-id "20")
+         (category "practice-optimization")
+         (advice "Shift focus toward depth and reflection rather than increasing volume.")
+         (reason "high-volume-no-urgent-need")))
 )

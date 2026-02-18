@@ -24,7 +24,17 @@
    (slot average-sleep-hours (type INTEGER))  ; integer
 )
 
-; -- 3. Practice and Availability --
+; -- 3. LeetCode Skill and Experience --
+(deftemplate leetcode-skill
+   (slot user-id)
+   (slot leetcode-experience-level)  ; beginner | intermediate | advanced
+   (slot problems-solved-count (type INTEGER))  ; integer ( <50 | 50-200 | >200)
+   (slot current-problem-difficulty)  ; easy | medium | hard
+   (slot average-time-per-problem (type INTEGER))  ; integer (minutes)
+   (slot common-stumbling-blocks)  ; syntax | algorithms | optimization | debugging 
+)
+
+; -- 4. Practice and Availability --
 (deftemplate practice-habits
    (slot user-id)
    (slot practice-days-per-week (type INTEGER))  ; integer (0-3 | 4-5 | 6-7)
@@ -33,16 +43,6 @@
    (slot practice-streak (type INTEGER))  ; integer (number of consecutive days) (long > 7, moderate 3-7, short <3)
    (slot practice-regularity)  ; inconsistent | consistent
    (slot days-until-interview (type INTEGER))  ; integer (0-7 | 8-30 | 31+)
-)
-
-; -- 4. LeetCode Skill and Experience --
-(deftemplate leetcode-skill
-   (slot user-id)
-   (slot leetcode-experience-level)  ; beginner | intermediate | advanced
-   (slot problems-solved-count (type INTEGER))  ; integer ( <50 | 50-200 | >200)
-   (slot current-problem-difficulty)  ; easy | medium | hard
-   (slot average-time-per-problem (type INTEGER))  ; integer (minutes)
-   (slot common-stumbling-blocks)  ; syntax | algorithms | optimization | debugging 
 )
 
 ; -- 5. Performance and Outcomes --
