@@ -123,9 +123,10 @@
             (reason "long-practice-streak"))))
 )
 
-;------------------------------------------------------
-; -------- Category 3: Difficulty Selection -----------
-;------------------------------------------------------
+;------------------------------------------------------------
+; ----------- Category 3: Difficulty Selection --------------
+;------------------------------------------------------------
+
 
 ; -- Rule 5: Beginner Avoid Medium or Hard --
 (defrule rule-5-beginner-avoid-medium-hard
@@ -243,18 +244,18 @@
          (reason "consistent-high-performance")))
 )
 
-;------------------------------------------------------
-;--------- Category 4: Interview Strategy -------------
-;------------------------------------------------------
+;------------------------------------------------------------
+;-------------- Category 4: Interview Strategy --------------
+;------------------------------------------------------------
 
 ; -- Rule 11: Gradual Progress with Plenty of Time
 (defrule rule-11-slow-skill-progression
    (practice-habits
       (user-id ?id)
-      (days-until-interview ?days&:(> ?days 31))
+      (days-until-interview ?days&:(> ?days 31)))
    (leetcode-performance
       (user-id ?id)
-      (recent-success-rate low)))
+      (recent-success-rate low))
 =>  
    (assert (recommendation
       (user-id ?id)
