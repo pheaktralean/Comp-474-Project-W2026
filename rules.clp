@@ -1,4 +1,4 @@
-; -- Display recommendations based on user facts --
+; ------- Display recommendations based on user facts -------
 (defrule display-recommendations
    (recommendation
       (user-id ?id)

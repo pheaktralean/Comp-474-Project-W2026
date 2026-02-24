@@ -1,4 +1,4 @@
-; -- Recommendation Template -- 
+; ------------------ Recommendation Template ------------------- 
 (deftemplate recommendation
    (slot user-id)
    (slot rule-id)
@@ -7,7 +7,7 @@
    (slot reason)
 )
 
-; -- 1. User Profile (Background and Career) --
+; ----------- 1. User Profile (Background and Career) -----------
 (deftemplate user-profile
    (slot user-id)
    (slot has-dsa-knowledge) ; yes |no
@@ -16,7 +16,7 @@
    (slot weekly-working-hours (type INTEGER))  ; integer (0-19 | 20-39 | 40+)
 )
 
-; -- 2. User Well-being and Motivation --
+; ------------- 2. User Well-being and Motivation ----------------
 (deftemplate well-being
    (slot user-id)
    (slot fatigue-level)  ; low | moderate | high
@@ -24,7 +24,7 @@
    (slot average-sleep-hours (type INTEGER))  ; integer
 )
 
-; -- 3. LeetCode Skill and Experience --
+; -------------- 3. LeetCode Skill and Experience -----------------
 (deftemplate leetcode-skill
    (slot user-id)
    (slot leetcode-experience-level)  ; beginner | intermediate | advanced
@@ -34,7 +34,7 @@
    (slot common-stumbling-blocks)  ; syntax | algorithms | optimization | debugging 
 )
 
-; -- 4. Practice and Availability --
+; ----------------- 4. Practice and Availability -------------------
 (deftemplate practice-habits
    (slot user-id)
    (slot practice-days-per-week (type INTEGER))  ; integer (0-3 | 4-5 | 6-7)
@@ -45,7 +45,7 @@
    (slot days-until-interview (type INTEGER))  ; integer (0-7 | 8-30 | 31+)
 )
 
-; -- 5. Performance and Outcomes --
+; ------------------- 5. Performance and Outcomes -------------------
 (deftemplate leetcode-performance
    (slot user-id)
    (slot recent-success-rate)  ; low | moderate | high

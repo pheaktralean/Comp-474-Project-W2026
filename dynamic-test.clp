@@ -14,13 +14,23 @@
     (printout t"Enter your ID: ")
     (bind ?id (read))
 
-   (printout t "Enter your dsa knowledge (yes/no): ")
-   (bind ?dsa (read))
+   (printout t "Enter your fatigue level (low/high): ")
+   (bind ?fatigue (read))
 
-   (assert (user-profile
+   (printout t "Enter your practice streak (days): ")
+   (bind ?days (read))
+
+   (printout t "Enter your average session (minutes): ")
+   (bind ?duration (read))
+
+
+   (assert (well-being
       (user-id ?id)
-      (has-dsa-knowledge ?dsa)))
-
+      (fatigue-level ?fatigue)))
+   (assert (practice-habits
+      (user-id ?id)
+      (practice-streak ?days)
+      (average-session-duration ?duration)))
    (retract ?s)
 )
 
