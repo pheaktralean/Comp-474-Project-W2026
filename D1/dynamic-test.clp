@@ -11,8 +11,8 @@
 (defrule collect-person-info
    ?s <- (start)
 =>
-    (printout t"Enter your ID: ")
-    (bind ?id (read))
+   (printout t "Enter your ID: ")
+   (bind ?id (read))
 
    (printout t "Enter your fatigue level (low/high): ")
    (bind ?fatigue (read))
@@ -23,6 +23,17 @@
    (printout t "Enter your average session (minutes): ")
    (bind ?duration (read))
 
+   (printout t "Enter your weekly practice (minutes): ")
+   (bind ?weekly (read))
+
+   (printout t "Enter your current problem difficulty (easy/medium/hard): ")
+   (bind ?difficulty (read))
+
+   (printout t "Enter your recent success rate (low/moderate/high): ")
+   (bind ?success (read))
+
+   (printout t "Enter the number of days until your interview: ")
+   (bind ?interview (read))
 
    (assert (well-being
       (user-id ?id)
@@ -30,7 +41,15 @@
    (assert (practice-habits
       (user-id ?id)
       (practice-streak ?days)
-      (average-session-duration ?duration)))
+      (average-session-duration ?duration)
+      (days-until-interview ?interview)
+      (weekly-practice-minutes ?weekly)))
+   (assert (leetcode-skill
+      (user-id ?id)
+      (current-problem-difficulty ?difficulty)))
+   (assert (leetcode-performance
+      (user-id ?id)
+      (recent-success-rate ?success)))
    (retract ?s)
 )
 

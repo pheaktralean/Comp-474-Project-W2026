@@ -2,7 +2,7 @@
 ; ------------ Category 1: Fundamental Knowledge ------------
 ;------------------------------------------------------------
 
-; -- Test case 1: Rule 1 --
+; -- Test case 1: rule 1 --
 (deffacts test-rule-1
    (user-profile
       (user-id 1)
@@ -13,7 +13,7 @@
 ; --------------- Category 2: Well-being Management ---------
 ;------------------------------------------------------------
 
-; -- Test case 2: Rule 2 --
+; -- Test case 2: rule 2 --
 (deffacts test-rule-2
    (well-being
       (user-id 2)
@@ -137,20 +137,64 @@
 )
 
 ; -- Test case 12: rule 12 --
-(deffacts test-rule-12
+;(deffacts test-rule-12
+;   (user-profile
+;      (user-id 12)
+;      (career-goal internship))
+;   (practice-habits
+;      (user-id 12)
+;      (days-until-interview 3))
+;   (leetcode-skill
+;      (user-id 12)
+;      (problems-solved-count 60))
+;   (leetcode-performance
+;      (user-id 12)
+;      (recent-success-rate moderate)
+;      (mock-interviews-completed 5))
+;)
+
+; -- New Test Cases for Rule 12 After Refinemnt --
+
+; -- Test case 12A: rule 12A --
+(deffacts test-rule-12A
    (user-profile
-      (user-id 12)
+      (user-id 100)
       (career-goal internship))
    (practice-habits
-      (user-id 12)
+      (user-id 100)
       (days-until-interview 3))
+   (leetcode-performance
+      (user-id 100)
+      (mock-interviews-completed 0))
+)
+
+; -- Test case 12B: rule 12B --
+(deffacts test-rule-12B
+   (user-profile
+      (user-id 101)
+      (career-goal internship))
+   (practice-habits
+      (user-id 101)
+      (days-until-interview 3))  
    (leetcode-skill
-      (user-id 12)
+      (user-id 101)
       (problems-solved-count 60))
    (leetcode-performance
-      (user-id 12)
-      (recent-success-rate moderate)
-      (mock-interviews-completed 5))
+      (user-id 101)
+      (recent-success-rate moderate))
+)
+
+; -- Test case 12C: rule 12C --
+(deffacts test-rule-12C
+   (user-profile
+      (user-id 102)
+      (career-goal internship))
+   (practice-habits  
+      (user-id 102)
+      (days-until-interview 3))
+   (leetcode-skill
+      (user-id 102)
+      (problems-solved-count 30))
 )
 
 ;------------------------------------------------------------
