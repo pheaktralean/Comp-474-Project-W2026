@@ -28,3 +28,7 @@
    (slot value (type FLOAT)) ; 0.0 to 1.0
 )
 
+(deftemplate failure-confidence
+   (slot user-id)
+   (slot value (type FLOAT)) ; 0.0 to 1.0
+)
