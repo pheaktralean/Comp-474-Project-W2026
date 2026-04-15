@@ -14,11 +14,13 @@
       (fatigue-level high))
    (fatigue-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
    (practice-habits
       (user-id ?id)
       (average-session-duration ?duration&:(> ?duration 90)))
 =>
+   (bind ?rule-cf 0.90)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -26,7 +28,7 @@
          (category "well-being-management")
          (advice "Shorten practice sessions to manage fatigue.")
          (reason "high-fatigue-long-sessions")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 )
 
 ; ------ Uncertain Rule U2B: High Fatigue + Long Streak ------
@@ -36,12 +38,14 @@
       (fatigue-level high))
    (fatigue-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
    (practice-habits
       (user-id ?id)
       (practice-streak ?streak&:(> ?streak 7))
       (average-session-duration ?duration&:(<= ?duration 90)))
-=>
+=> 
+   (bind ?rule-cf 0.80)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -49,7 +53,7 @@
          (category "well-being-management")
          (advice "Consider taking a break to prevent burnout.")
          (reason "high-fatigue-long-streak")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 )
 
 ; ------ Uncertain Rule U2C: General High Fatigue ------
@@ -59,12 +63,14 @@
       (fatigue-level high))
    (fatigue-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
    (practice-habits
       (user-id ?id)
       (practice-streak ?streak&:(<= ?streak 7))
       (average-session-duration ?duration&:(<= ?duration 90)))
 =>
+   (bind ?rule-cf 0.70)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -72,7 +78,7 @@
          (category "well-being-management")
          (advice "Reduce practice intensity and focus on lighter problems.")
          (reason "general-high-fatigue")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 )
 
 ; --------------------------------------------------------------------
@@ -88,12 +94,14 @@
       (fatigue-level high))
    (motivation-confidence
       (user-id ?id)
-      (value ?cf1))
+      (value ?cf1&:(< ?cf1 0.3))) ; Low motivation confidence
    (fatigue-confidence
       (user-id ?id)
-      (value ?cf2))
+      (value ?cf2&:(> ?cf2 0.5))) ; High fatigue confidence
 =>
-   (bind ?combined-cf (* ?cf1 ?cf2))
+   (bind ?evidence-cf (min ?cf1 ?cf2))
+   (bind ?rule-cf 0.80)
+   (bind ?final-cf (* ?evidence-cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -101,7 +109,7 @@
          (category "well-being-management")
          (advice "Set small, achievable goals to rebuild momentum.")
          (reason "low-motivation-high-fatigue")
-         (confidence ?combined-cf)))
+         (confidence ?final-cf)))
 )
 
 ; ------ Uncertain Rule U3B: Low Motivation + Short Streak ------
@@ -111,15 +119,17 @@
       (motivation-level low))
    (motivation-confidence
       (user-id ?id)
-      (value ?cf1))
+      (value ?cf1&:(> ?cf1 0.5)))
    (practice-habits
       (user-id ?id)
       (practice-streak ?streak&:(< ?streak 3)))
    (consistency-confidence
       (user-id ?id)
-      (value ?cf2))
+      (value ?cf2&:(> ?cf2 0.5)))
 =>
-   (bind ?combined-cf (* ?cf1 ?cf2))
+   (bind ?evidence-cf (* ?cf1 ?cf2))
+   (bind ?rule-cf 0.70)
+   (bind ?final-cf (* ?evidence-cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -127,7 +137,7 @@
          (category "well-being-management")
          (advice "Set small, achievable goals to rebuild momentum.")
          (reason "low-motivation-short-streak")
-         (confidence ?combined-cf)))
+         (confidence ?final-cf)))
 )
 
 ; --------------------------------------------------------------------
@@ -142,11 +152,13 @@
       (recent-failure-rate high))
    (failure-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
    (leetcode-skill
       (user-id ?id)
       (current-problem-difficulty medium))
 =>
+   (bind ?rule-cf 0.75)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -154,7 +166,7 @@
          (category "difficulty-selection")
          (advice "Reduce difficulty to easy.")
          (reason "high-failure-rate-medium-difficulty")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 ) 
 
 ; --------------------------------------------------------------------
@@ -169,11 +181,13 @@
       (recent-success-rate high))
    (success-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
    (leetcode-skill
       (user-id ?id)
       (current-problem-difficulty easy))
 =>
+   (bind ?rule-cf 0.80)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -181,7 +195,7 @@
          (category "difficulty-selection")
          (advice "Consider trying medium difficulty problems.")
          (reason "high-success-rate-easy-difficulty")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 )
 
 ; --------------------------------------------------------------------
@@ -196,11 +210,13 @@
       (recent-success-rate low))
    (success-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
    (leetcode-skill
       (user-id ?id)
       (current-problem-difficulty hard))
 =>
+   (bind ?rule-cf 0.85)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -208,7 +224,7 @@
          (category "difficulty-selection")
          (advice "Consider switching to medium difficulty problems.")
          (reason "low-success-rate-hard-difficulty")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 )
 
 ; --------------------------------------------------------------------
@@ -228,15 +244,17 @@
       (recent-success-rate high))
    (success-confidence
       (user-id ?id)
-      (value ?cf1))
+      (value ?cf1&:(> ?cf1 0.5)))
    (practice-habits
       (user-id ?id)
       (practice-regularity consistent))
    (consistency-confidence
       (user-id ?id)
-      (value ?cf2))
+      (value ?cf2&:(> ?cf2 0.5)))
 =>
-   (bind ?combined-cf (* ?cf1 ?cf2))
+   (bind ?evidence-cf (min ?cf1 ?cf2))
+   (bind ?rule-cf 0.85)
+   (bind ?final-cf (* ?evidence-cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -244,7 +262,7 @@
          (category "difficulty-selection")
          (advice "You may attempt harder problems to further enhance your skills.")
          (reason "consistent-high-performance")
-         (confidence ?combined-cf)))
+         (confidence ?final-cf)))
 )
 
 ; --------------------------------------------------------------------
@@ -265,8 +283,10 @@
       (mock-interviews-completed ?mock-count&:(< ?mock-count 3)))
    (readiness-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
 =>
+   (bind ?rule-cf 0.95)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -274,7 +294,7 @@
          (category "interview-preparation")
          (advice "Prioritize mock interviews immediately.")
          (reason "interview-soon-low-mock-exposure")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 )
 
 ; ------ Uncertain Rule U12B: Medium Interview Focus -------
@@ -294,8 +314,10 @@
                                       (eq ?rate high))))
    (readiness-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
 =>
+   (bind ?rule-cf 0.85)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -303,11 +325,11 @@
          (category "interview-preparation")
          (advice "Focus on medium-level interview problems.")
          (reason "interview-soon-ready-for-advancement")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 )
 
 ; ------ Uncertain Rule U12C: Strengthen Fundamentals -------
-defrule rule-U12C-strengthen-fundamentals
+(defrule rule-U12C-strengthen-fundamentals
    (practice-habits
       (user-id ?id)
       (days-until-interview ?days&:(<= ?days 14)))
@@ -319,8 +341,10 @@ defrule rule-U12C-strengthen-fundamentals
       (problems-solved-count ?count&:(< ?count 50)))
    (readiness-confidence
       (user-id ?id)
-      (value ?cf))
+      (value ?cf&:(> ?cf 0.5)))
 =>
+   (bind ?rule-cf 0.75)
+   (bind ?final-cf (* ?cf ?rule-cf))
    (assert
       (recommendation
          (user-id ?id)
@@ -328,7 +352,5 @@ defrule rule-U12C-strengthen-fundamentals
          (category "interview-preparation")
          (advice "Strengthen fundamentals before advancing.")
          (reason "interview-soon-low-exposure")
-         (confidence ?cf)))
+         (confidence ?final-cf)))
 )
-
-

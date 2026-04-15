@@ -1,5 +1,5 @@
 ; -------------------------------------------------------------------
-; ------------------- Uncertain Rules Test Cases --------------------
+; ------------------- Certainty Factor Rules Test Cases -------------
 ; -------------------------------------------------------------------
 
 ; --------------------------------------------------------------------
@@ -27,7 +27,7 @@
       (fatigue-level high))
    (fatigue-confidence
       (user-id 1001)
-      (value 0.9))
+      (value 0.7))
    (practice-habits
       (user-id 1001)
       (practice-streak 10)
@@ -61,10 +61,10 @@
       (fatigue-level high))
    (motivation-confidence
       (user-id 1003)
-      (value 0.7))
+      (value 0.28))
    (fatigue-confidence
       (user-id 1003)
-      (value 0.8))
+      (value 0.6))
 )
 
 ; ------ Uncertain Rule U3B: Low Motivation + Short Streak ------
